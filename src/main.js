@@ -75,9 +75,17 @@ app.on('activate', function () {
   }
 });
 
+const getBjslibNetworkFromUnchainedNetwork = (unchainedNetwork) => {
+  if (unchainedNetwork === 'mainnet') {
+    return networks.bitcoin;
+  } else {
+    return networks.testnet;
+  }
+}
+
 ipcMain.on('/account-data', async (event, args) => {
   const { config } = args;
-  const currentBitcoinNetwork = networks.bitcoin;
+  const currentBitcoinNetwork = getBjslibNetworkFromUnchainedNetwork(config.network);
   let addresses, changeAddresses, transactions, unusedAddresses, unusedChangeAddresses, availableUtxos;
 
   if (config.quorum.totalSigners > 1) {
