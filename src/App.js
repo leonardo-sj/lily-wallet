@@ -40,6 +40,14 @@ const emptyConfig = {
   keys: []
 }
 
+const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork) => {
+  if (bitcoinJslibNetwork === networks.bitcoin) {
+    return 'mainnet';
+  } else {
+    return 'testnet';
+  }
+}
+
 function App() {
   const [currentBitcoinPrice, setCurrentBitcoinPrice] = useState(BigNumber(0));
   const [historicalBitcoinPrice, setHistoricalBitcoinPrice] = useState({});
@@ -125,6 +133,8 @@ function App() {
     if (config.wallets.length || config.vaults.length) {
       const initialAccountMap = new Map();
 
+      const unchainedNetwork = getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork);
+
       for (let i = 0; i < config.wallets.length; i++) {
         initialAccountMap.set(config.wallets[i].id, {
           name: config.wallets[i].name,
@@ -132,7 +142,7 @@ function App() {
           transactions: [],
           loading: true
         })
-        window.ipcRenderer.send('/account-data', { config: config.wallets[i] })
+        window.ipcRenderer.send('/account-data', { config: config.wallets[i], unchainedNetwork })
       }
 
       for (let i = 0; i < config.vaults.length; i++) {
@@ -142,7 +152,7 @@ function App() {
           transactions: [],
           loading: true
         })
-        window.ipcRenderer.send('/account-data', { config: config.vaults[i] })
+        window.ipcRenderer.send('/account-data', { config: config.vaults[i], unchainedNetwork })
       }
 
       setCurrentAccount(initialAccountMap.values().next().value)
